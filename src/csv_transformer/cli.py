@@ -40,10 +40,13 @@ def main():
     parser.add_argument('-t', '--transform',
         help="""Transformations definition. Passed as escaped JSON object or path to a JSON file. Format:
         {
-            "<transformer_name>": [{
+            "transfomers":{
+                "<transformer_name>": [{
                 "column_name": <column_name>,
-                "args": <JSON object with input args>
-            }]
+                "transformer_args": <JSON object with input args>
+                }]
+            },
+            "column_order": [<column_name>, ...]
         }
         """
     )

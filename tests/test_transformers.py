@@ -4,7 +4,33 @@ import arrow
 from csv_transformer.transformers.uuid_to_int_transformer import UUIDToIntTransformer
 from csv_transformer.transformers.redact_data_transformer import RedactDataTransformer
 from csv_transformer.transformers.format_date_transformer import FormatDatetimeTransformer
+from csv_transformer.transformers.transformers_factory import TransformerFactory
+from csv_transformer.common.constants import TransformersType
 
+@pytest.mark.parametrize("transformer_type",[
+    'dummy',
+    '',
+])
+def test_factory_transformer_does_not_exists(transformer_type):
+    factory = TransformerFactory()
+    with pytest.raises(ValueError, match=f"Transformer '{transformer_type}' is not supported"):
+        factory.get_instance(transformer_type, **{})
+        
+
+def test_factory_transformer_default_input_config():
+    uuid_transformer = 'uuid_to_int'
+    factory = TransformerFactory()
+    transformer = factory.get_instance(uuid_transformer, **{})
+    assert isinstance(transformer, UUIDToIntTransformer)
+
+
+def test_factory_transformer_custom_input_config():
+    uuid_transformer = 'uuid_to_int'
+    registry = {TransformersType(uuid_transformer): UUIDToIntTransformer}
+    factory = TransformerFactory(registry)
+    transformer = factory.get_instance(uuid_transformer, **{})
+    assert isinstance(transformer, UUIDToIntTransformer)
+ 
 def test_uuid_to_int_transformer():
     uuid_to_int_transformer = UUIDToIntTransformer(initial_id = 1)
     uuids = [
