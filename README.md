@@ -47,6 +47,12 @@ csv-transform data/user_sample.csv data/output.csv -t "{\"transfomers\":{\"uuid_
 csv-transform data/user_sample.csv data/output.csv -t data/transformation_definition.json
 ```
 
+### Execution
+the `output.csv` file has been created running the following command
+```bash
+csv-transform data/user_sample.csv data/output.csv -t data/transformation_definition.json
+```
+
 ## Transformation definition Model
 
 Transformations follow this model:
@@ -146,3 +152,59 @@ Example:
   }
 }
 ```
+
+## Development
+
+### Running Tests
+
+```bash
+pip install -e '.[dev]'
+pytest
+```
+
+## Notes
+- The CLI requires python 3.9 or greater.
+- The external library `arrow` has been used to simplify datetime management. It'll be installed in the venv.
+- AI agents has been used to assist documentation creation.
+
+## Further improvements
+
+The current implementation loads and transforms the data in one go in memory. Vertical scaling will eventually reach the limit as the nr of rows, columns, and operations increases dramatically.
+
+Pitfalls:
+1. Big files with lots of rows and/or columns will waste memory and I/O resources
+2. If transformations becomes more complex and are applied to each columns, computational capacity might reach the limit.
+
+therefore further improvements can be considered.
+
+### Vectorized Operations
+Use a library like `pandas` in Python to take advantage of vectorized operations. Instead of applying a transformation to each cell individually, row by row, it allows to apply a function to entire columns or rows at once.
+
+Common practice is to load data in chunks instead of full dataset, by setting a fixed nr. of rows for each execution.
+Depending on the requirements, either partial success or atomic transformation, the implementation could try to either write the data that was successfully processed or discard the whole output file if even a single row fails.
+
+In addition, boundaries can be set to limit the nr. of rows or file size and columns to prevent too large files to be processed.
+This solution improves memory and I/O resource management.
+
+### Multi-threading and multi-processing
+
+To improve further I/O, multi-threading can be used to parallelize data computation tasks while keeping the data to be written in memory. As the chunks of data are processed, the content can be appended to the output file. Threading improve I/O access, although uses same memory and CPU capacity.
+
+If memory and/or CPU become a bottleneck, multiprocessing can be used to effectively create new independent processes, runnning in parallel and having their own memory and cpu capacity. This will increase complexity on how to read and write to the output file. In this case each chunk of data can be passed to an independent process which will write to a temporary csv file. at the end the main task will join the temp files in a single output csv.
+
+## Extending the architecture to a distributed system
+
+### Distributed computation
+
+If transformation logic becomes too complex and CPU intensive, computation could be delegated to external servers. Given the input model, different functions can be implemented as RPC APIs, invoked by the client which will pass the input args in the request. 
+Even in this case, the input arguments need to be carefully designed and limited to prevent unbounded requests payloads.
+
+#### Parallelization
+As the computation logic is delegated, transformations can be executed in parallel by invoking multiple RPC APIs in parallel. In this case becomes relevant how to manage multi-threading, locking strategies, and call retries. In the latter case, depending on the RPC server SLA, exponential backoff retries or retry-once strategies can be applied. 
+
+**Note:** almost all AWS services implements the "token bucket" retry strategy to prevent retry storms, often caused by exponential backoff strategies, as the service scales up. (https://aws.amazon.com/builders-library/timeouts-retries-and-backoff-with-jitter/).
+
+### Sync vs. Async
+As the requirements becomes more and more complex, it should be considered asynchronously processing, maybe storing the file in a cloud storage (i.e.: S3) and process rows as per discussed strategies.
+This will increase complexity as state management should be introduced to track processing status.
+However the CLI should introduce a new command to retrieve the output file from the remote storage, once processing is completed. 
