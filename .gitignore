@@ -1,0 +1,13 @@
+.env
+.env.local
+.env.*.local
+.vscode/
+.DS_Store
+.venv
+venv
+__pycache__
+*.egg-info
+*.egg
+*.log
+.pytest_cache
+*.coverage
