@@ -74,7 +74,7 @@ Transformations follow this model:
 Example:
 ```
 {
-  "transformations": {
+  "transfomers": {
     "uuid_to_int": [{
       "column_name": "user_id",
       "transformer_args": {
@@ -120,14 +120,14 @@ Other ASCII characters (i.e.: punctuation) are left as is.
 Arguments: 
 At the moment no arguments is required, although the `args` attribute must always be defined.
 
-### Multiple Transformations
+### Multiple fields transformations
 
 The JSON object can specify multiple transformers.
 
 Example:
 ```
 {
-  "transformations": {
+  "transfomers": {
     "uuid_to_int": [{
       "column_name": "user_id",
       "transformer_args": {
