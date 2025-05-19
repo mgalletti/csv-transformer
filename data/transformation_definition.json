@@ -1,0 +1,39 @@
+{
+  "transfomers":{
+    "uuid_to_int": [
+      {
+        "column_name": "user_id",
+        "transformer_args": {
+          "initial_id": 1
+        }
+      }
+    ],
+    "redact_data": [
+      {
+        "column_name": "name",
+        "transformer_args": {}
+      },
+      {
+        "column_name": "email_address",
+        "transformer_args": {}
+      }
+    ],
+    "format_date": [
+      {
+        "column_name": "last_login",
+        "transformer_args": {
+          "input_datetime_format": "YYYY-MM-DD hh:mm:ss ZZZ",
+          "output_datetime_format": "YYYY-MM-DD"
+        }
+      }
+    ]
+  },
+  "column_order": [
+    "start_date",
+    "manager_id",
+    "user_id",
+    "name",
+    "email_address",
+    "last_login"
+  ]
+}

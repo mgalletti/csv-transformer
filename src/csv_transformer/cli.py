@@ -3,6 +3,7 @@
 import sys
 import argparse
 from csv_transformer.common.logger import logger
+from csv_transformer.common.utils import get_json_from_input
 
 def transform_csv(input_file: str, output_file: str, transformations: str) -> bool:
     """
@@ -23,6 +24,9 @@ def transform_csv(input_file: str, output_file: str, transformations: str) -> bo
             'transformations': transformations
         }
         logger.info(f"Input payload: {payload}")
+        transformations_definition = get_json_from_input(transformations)
+        logger.info(f"Transformations definition: {transformations_definition}")
+        
         return True
     except Exception as e:
         logger.error(f"Error: {e}")
